@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="NFT Sniper Bot",
@@ -12,6 +13,10 @@ menu = st.sidebar.radio(
     ["Dashboard", "Manage Patterns", "Transactions", "Settings"]
 )
 
+prices = [100, 98, 97, 99, 96, 95, 93]
+dates = ["2024-12-01", "2024-12-02", "2024-12-03", "2024-12-04", "2024-12-05", "2024-12-06", "2024-12-07"]
+floor_price = 95 
+
 if menu == "Dashboard":
     st.title("📊 Dashboard")
     st.write("Welcome to the NFT Sniper Bot dashboard.")
@@ -22,7 +27,37 @@ if menu == "Dashboard":
     col3.metric("Successful Purchases", "12")
     
     st.subheader("Floor Price Trends")
-    st.line_chart([100, 98, 97, 99, 96]) 
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=dates,
+        y=prices,
+        mode='lines+markers',
+        name='Price',
+        marker=dict(size=8),
+        line=dict(color='royalblue', width=2)
+    ))
+
+    highlighted_points = [(d, p) for d, p in zip(dates, prices) if p <= floor_price]
+    if highlighted_points:
+        highlight_dates, highlight_prices = zip(*highlighted_points)
+        fig.add_trace(go.Scatter(
+            x=highlight_dates,
+            y=highlight_prices,
+            mode='markers',
+            name='Floor Reached',
+            marker=dict(color='red', size=10, symbol='circle'),
+        ))
+
+    fig.update_layout(
+        title="Floor Price Trends",
+        xaxis_title="Date",
+        yaxis_title="Price",
+        hovermode="x unified", 
+        template="plotly_white"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 elif menu == "Manage Patterns":
     st.title("🔍 Manage Patterns")
